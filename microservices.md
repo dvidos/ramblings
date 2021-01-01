@@ -68,5 +68,33 @@ If we move to a dedicated database server and our writes still struggle and we n
 we can consider sharding our data, that is using a universal identifier to split the storage 
 into two or more stoage solutions.
 
+## Event driven architecture
+
+If we produce events (asynchronous messages) everytime that something interesting happens in our service,
+peripheral services may consume those to react to the change. 
+For example, if a new customer is registered, maybe a peripheral service will send a welcome email message.
+
+Those events can be from very simple, containing only the semantics of the change and an aggregate identifier,
+all the way to very complex, contining bit trees of data, including links to extra resources for extra information.
+
+A widespread adoption of events takes us towards an even driven architecture, where most of the 
+processing is done at the time of the change, to at the time of the user request. If fast read models
+are maintained, this allows for very fast response to otherwise very time consuming queries.
+
+## Avoiding failure propagation
+
+A microservice that consumes events is also avoiding failure propagation. A synchronous HTTP dependency
+will cause the failure to expand, as any services that depend on the failed service, will also fail.
+
+Using messages allows us to avoid this pattern. Any consuming service will see messages flow drop, or even stop.
+But when the service is back up, any processing will resume from the point it was left.
+
+This allows for a very resilient scheme, where all services just respond to messages with more messages.
+The net result is that small downtimes here and there will hardly be noticed or cause a major outage,
+provided the messaging medium (e.g. kafka) is healthy.
+
+
+
+
 
 
